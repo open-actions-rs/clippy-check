@@ -1,20 +1,21 @@
-import * as exec from "@actions/exec";
 import { Cargo, Cross } from "@actions-rs/core";
-import { OutputParser as OutputParser } from "./outputParser";
-import { Reporter } from "./reporter";
-import { AnnotationWithMessageAndLevel, Context, Stats } from "./schema";
-import * as input from "./input";
 import * as core from "@actions/core";
+import * as exec from "@actions/exec";
 
-type Program = Cross | Cargo;
-type ClippyResult = {
+import * as input from "./input";
+import { OutputParser } from "./outputParser";
+import { Reporter } from "./reporter";
+import type { AnnotationWithMessageAndLevel, Context, Stats } from "./schema";
+
+type Program = Cargo | Cross;
+interface ClippyResult {
     stats: Stats;
     annotations: AnnotationWithMessageAndLevel[];
     exitCode: number;
-};
+}
 
 async function buildContext(program: Program): Promise<Context> {
-    let context: Context = {
+    const context: Context = {
         cargo: "",
         clippy: "",
         rustc: "",
@@ -24,22 +25,25 @@ async function buildContext(program: Program): Promise<Context> {
         await exec.exec("rustc", ["-V"], {
             silent: true,
             listeners: {
-                stdout: (buffer: Buffer) =>
-                    (context.rustc = buffer.toString().trim()),
+                stdout: (buffer: Buffer) => {
+                    return (context.rustc = buffer.toString().trim());
+                },
             },
         }),
         await program.call(["-V"], {
             silent: true,
             listeners: {
-                stdout: (buffer: Buffer) =>
-                    (context.cargo = buffer.toString().trim()),
+                stdout: (buffer: Buffer) => {
+                    return (context.cargo = buffer.toString().trim());
+                },
             },
         }),
         await program.call(["clippy", "-V"], {
             silent: true,
             listeners: {
-                stdout: (buffer: Buffer) =>
-                    (context.clippy = buffer.toString().trim()),
+                stdout: (buffer: Buffer) => {
+                    return (context.clippy = buffer.toString().trim());
+                },
             },
         }),
     ]);
@@ -47,10 +51,7 @@ async function buildContext(program: Program): Promise<Context> {
     return context;
 }
 
-async function runClippy(
-    actionInput: input.Input,
-    program: Program
-): Promise<ClippyResult> {
+async function runClippy(actionInput: input.Input, program: Program): Promise<ClippyResult> {
     let args: string[] = [];
 
     // Toolchain selection MUST go first in any condition
@@ -67,9 +68,9 @@ async function runClippy(
 
     args = args.concat(actionInput.args);
 
-    let outputParser = new OutputParser();
+    const outputParser = new OutputParser();
 
-    let exitCode: number = 0;
+    let exitCode = 0;
 
     try {
         core.startGroup("Executing cargo clippy (JSON output)");
@@ -89,7 +90,7 @@ async function runClippy(
     return {
         stats: outputParser.stats,
         annotations: outputParser.annotations,
-        exitCode: exitCode,
+        exitCode,
     };
 }
 
@@ -101,12 +102,9 @@ export async function run(actionInput: input.Input): Promise<void> {
         program = await Cargo.get();
     }
 
-    let context = await buildContext(program);
+    const context = await buildContext(program);
 
-    let { stats, annotations, exitCode } = await runClippy(
-        actionInput,
-        program
-    );
+    const { stats, annotations, exitCode } = await runClippy(actionInput, program);
 
     await new Reporter().report(stats, annotations, context);
 
@@ -130,4 +128,4 @@ async function main(): Promise<void> {
     }
 }
 
-main();
+void main();

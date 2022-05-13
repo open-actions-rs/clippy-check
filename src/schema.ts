@@ -1,4 +1,4 @@
-import { AnnotationProperties } from "@actions/core";
+import type { AnnotationProperties } from "@actions/core";
 
 export enum AnnotationLevel {
     Error,

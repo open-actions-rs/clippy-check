@@ -1,18 +1,13 @@
 import * as core from "@actions/core";
 
-import {
-    AnnotationLevel,
-    AnnotationWithMessageAndLevel,
-    CargoMessage,
-    DiagnosticSpan,
-    Stats,
-} from "./schema";
+import type { AnnotationWithMessageAndLevel, CargoMessage, Stats } from "./schema";
+import { AnnotationLevel } from "./schema";
 
 export class OutputParser {
     private _uniqueAnnotations: Map<string, AnnotationWithMessageAndLevel>;
     private _stats: Stats;
 
-    constructor() {
+    public constructor() {
         this._uniqueAnnotations = new Map();
         this._stats = {
             ice: 0,
@@ -23,11 +18,11 @@ export class OutputParser {
         };
     }
 
-    get stats(): Stats {
+    public get stats(): Stats {
         return this._stats;
     }
 
-    get annotations(): AnnotationWithMessageAndLevel[] {
+    public get annotations(): AnnotationWithMessageAndLevel[] {
         return [...this._uniqueAnnotations.values()];
     }
 
@@ -41,9 +36,7 @@ export class OutputParser {
         }
 
         if (contents.reason !== "compiler-message") {
-            core.debug(
-                `Unexpected reason field, ignoring it: ${contents.reason}`
-            );
+            core.debug(`Unexpected reason field, ignoring it: ${contents.reason}`);
             return;
         }
 
@@ -52,8 +45,8 @@ export class OutputParser {
             return;
         }
 
-        let parsedAnnotation = OutputParser.makeAnnotation(contents);
-        let key = JSON.stringify(parsedAnnotation);
+        const parsedAnnotation = OutputParser.makeAnnotation(contents);
+        const key = JSON.stringify(parsedAnnotation);
 
         if (this._uniqueAnnotations.has(key)) {
             return;
@@ -82,7 +75,7 @@ export class OutputParser {
         this._uniqueAnnotations.set(key, parsedAnnotation);
     }
 
-    static parseLevel(level: String): AnnotationLevel {
+    private static parseLevel(level: string): AnnotationLevel {
         switch (level) {
             case "help":
             case "note":
@@ -97,18 +90,17 @@ export class OutputParser {
     /// Convert parsed JSON line into the GH annotation object
     ///
     /// https://developer.github.com/v3/checks/runs/#annotations-object
-    static makeAnnotation(
-        contents: CargoMessage
-    ): AnnotationWithMessageAndLevel {
-        const primarySpan: undefined | DiagnosticSpan =
-            contents.message.spans.find((span) => span.is_primary == true);
+    private static makeAnnotation(contents: CargoMessage): AnnotationWithMessageAndLevel {
+        const primarySpan = contents.message.spans.find((span) => {
+            return span.is_primary === true;
+        });
 
         // TODO: Handle it properly
-        if (null == primarySpan) {
+        if (!primarySpan) {
             throw new Error("Unable to find primary span for message");
         }
 
-        let annotation: AnnotationWithMessageAndLevel = {
+        const annotation: AnnotationWithMessageAndLevel = {
             level: OutputParser.parseLevel(contents.message.level),
             message: contents.message.rendered,
             properties: {
@@ -120,7 +112,7 @@ export class OutputParser {
         };
 
         // Omit these parameters if `start_line` and `end_line` have different values.
-        if (primarySpan.line_start == primarySpan.line_end) {
+        if (primarySpan.line_start === primarySpan.line_end) {
             annotation.properties.startColumn = primarySpan.column_start;
             annotation.properties.endColumn = primarySpan.column_end;
         }

@@ -1,18 +1,10 @@
 import * as core from "@actions/core";
-import { SummaryTableRow } from "@actions/core/lib/summary";
-import {
-    AnnotationLevel,
-    AnnotationWithMessageAndLevel,
-    Stats,
-    Context,
-} from "./schema";
+
+import type { AnnotationWithMessageAndLevel, Context, Stats } from "./schema";
+import { AnnotationLevel } from "./schema";
 
 export class Reporter {
-    public async report(
-        stats: Stats,
-        annotations: AnnotationWithMessageAndLevel[],
-        context: Context
-    ): Promise<void> {
+    public async report(stats: Stats, annotations: AnnotationWithMessageAndLevel[], context: Context): Promise<void> {
         for (const annotation of annotations) {
             switch (annotation.level) {
                 case AnnotationLevel.Error: {
@@ -31,7 +23,7 @@ export class Reporter {
         }
 
         core.summary.addHeading("Clippy summary", 2);
-        let rows: SummaryTableRow[] = [
+        core.summary.addTable([
             [
                 {
                     header: true,
@@ -82,10 +74,11 @@ export class Reporter {
                     data: stats.help.toString(),
                 },
             ],
-        ];
-        core.summary.addTable(rows);
+        ]);
+
         core.summary.addHeading("Versions", 2);
         core.summary.addList([context.rustc, context.cargo, context.clippy]);
-        core.summary.write();
+
+        await core.summary.write();
     }
 }
