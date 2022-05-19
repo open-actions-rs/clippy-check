@@ -14,7 +14,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/actions-rs/clippy-check.git"
+        "url": "git+https://github.com/actions-rs-plus/clippy-check.git"
     },
     "keywords": [
         "actions",
@@ -24,7 +24,7 @@
     "author": "actions-rs",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/actions-rs/clippy-check/issues"
+        "url": "https://github.com/actions-rs-plus/clippy-check/issues"
     },
     "devDependencies": {
         "@actions-rs/core": "^0.1.6",
