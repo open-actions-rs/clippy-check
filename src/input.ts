@@ -1,15 +1,15 @@
-import { input } from "@actions-rs/core";
+import { input } from "@actions-rs-plus/core";
 import stringArgv from "string-argv";
 
 // Parsed action input
 export interface Input {
-    toolchain?: string;
+    toolchain: string | undefined;
     args: string[];
     useCross: boolean;
 }
 
 export function get(): Input {
-    let toolchain = input.getInput("toolchain");
+    let toolchain: string = input.getInput("toolchain");
 
     if (toolchain.startsWith("+")) {
         toolchain = toolchain.slice(1);
@@ -18,6 +18,6 @@ export function get(): Input {
     return {
         args: stringArgv(input.getInput("args")),
         useCross: input.getInputBool("use-cross"),
-        toolchain: toolchain || undefined,
+        toolchain: "" !== toolchain ? toolchain : undefined,
     };
 }

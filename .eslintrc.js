@@ -1,10 +1,11 @@
+// eslint-disable-next-line no-undef
 module.exports = {
     // parser: , // Specifies the ESLint parser, use default (which can handle JS)
     env: {},
     overrides: [
         {
             // the TS parser and TS specific rules
-            files: "src/**/*.ts",
+            files: ["src/**/*.ts"],
             parser: "@typescript-eslint/parser",
             settings: {
                 "import/resolver": {
@@ -12,16 +13,19 @@ module.exports = {
                 },
             },
             parserOptions: {
-                ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
+                ecmaVersion: "latest", // Allows for the parsing of modern ECMAScript features
                 sourceType: "module", // Allows for the use of imports
+                // eslint-disable-next-line no-undef
                 tsconfigRootDir: __dirname,
                 project: "./tsconfig.json",
-                debugLevel: false,
+                ecmaFeatures: {
+                    jsx: true,
+                },
             },
-            plugins: ["import", "@typescript-eslint"],
             extends: [
-                "plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
                 "plugin:import/typescript",
+                "plugin:@typescript-eslint/recommended",
+                // 'react-app',
                 "prettier", // prettier now has built in support for typescript in eslint-config-prettier 8
             ],
             rules: {
@@ -94,10 +98,16 @@ module.exports = {
         },
     ],
     extends: [
-        "prettier",
+        "eslint:recommended",
+        // "plugin:react/recommended",
         "plugin:prettier/recommended", // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
     ],
-    plugins: ["import", "prettier"],
+    plugins: ["import"],
+    parserOptions: {
+        ecmaVersion: "latest", // Allows for the parsing of modern ECMAScript features
+        sourceType: "module",
+    },
+    ignorePatterns: ["!.prettierrc.js", "!.dependency-cruiser.js"],
     rules: {
         "sort-imports": [
             "error",
@@ -105,19 +115,9 @@ module.exports = {
                 ignoreDeclarationSort: true,
             },
         ],
-        "import/order": [
-            "error",
-            {
-                "newlines-between": "always-and-inside-groups",
-                alphabetize: {
-                    order: "asc",
-                },
-            },
-        ],
         "import/no-unresolved": "error",
         "import/newline-after-import": "error",
         "import/no-duplicates": "error",
-
         eqeqeq: 2,
         "no-fallthrough": "error",
         "no-return-await": "error",
@@ -144,7 +144,7 @@ module.exports = {
             },
         ],
         "class-methods-use-this": "off",
-        indent: "off",
+        indent: ["error", 4],
         "max-len": "off",
         "no-dupe-class-members": "off",
         "no-extra-semi": "off",
@@ -163,10 +163,14 @@ module.exports = {
         "import/order": [
             "error",
             {
-                "newlines-between": "always",
+                "newlines-between": "always-and-inside-groups",
                 alphabetize: { order: "asc", caseInsensitive: true },
             },
         ],
     },
-    settings: {},
+    settings: {
+        react: {
+            version: "18.0",
+        },
+    },
 };
