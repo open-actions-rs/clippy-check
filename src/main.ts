@@ -1,4 +1,4 @@
-import { Cargo, Cross } from "@actions-rs/core";
+import { Cargo, Cross } from "@actions-rs-plus/core";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 
