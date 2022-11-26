@@ -47,7 +47,6 @@ jobs:
       - run: rustup component add clippy
       - uses: actions-rs/clippy-check@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
 ```
 
@@ -55,24 +54,13 @@ jobs:
 
 | Name        | Required | Description                                                                                                                            | Type   | Default |
 | ------------| :------: | ---------------------------------------------------------------------------------------------------------------------------------------| ------ | --------|
-| `token`     | ✓        | GitHub secret token, usually a `${{ secrets.GITHUB_TOKEN }}`                                                                           | string |         |
 | `toolchain` |          | Rust toolchain to use; override or system default toolchain will be used if omitted                                                    | string |         |
 | `args`      |          | Arguments for the `cargo clippy` command                                                                                               | string |         |
 | `use-cross` |          | Use [`cross`](https://github.com/rust-embedded/cross) instead of `cargo`                                                               | bool   | false   |
-| `name`      |          | Name of the created GitHub check. If running this action multiple times, each run must have a unique name.                             | string | clippy  |
 
 For extra details about the `toolchain`, `args` and `use-cross` inputs,
 see [`cargo` Action](https://github.com/actions-rs/cargo#inputs) documentation.
 
-**NOTE**: if your workflow contains multiple instances of the `clippy-check` action you will need to give each invocation a unique name, using the `name` property described above.
-Check runs must have a unique name, and this prevents a later check run overriding a previous one within the same workflow.
-
 ## Limitations
 
-Due to [token permissions](https://help.github.com/en/articles/virtual-environments-for-github-actions#token-permissions),
-this Action **WILL NOT** be able to post `clippy` annotations for Pull Requests from the forked repositories.
-
-This is a pretty big problem, which can be solved only by Github themselves,
-see [#2](https://github.com/actions-rs/clippy-check/issues/2) for details.\
-As a fallback this Action will output all clippy messages into the stdout
-and fail the result correspondingly.
+The sky
