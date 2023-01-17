@@ -1,4 +1,4 @@
-import { input } from "@actions-rs-plus/core";
+import { input } from "@open-actions-rs/core";
 import stringArgv from "string-argv";
 
 // Parsed action input
