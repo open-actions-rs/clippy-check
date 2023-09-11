@@ -1,33 +1,41 @@
-// eslint-disable-next-line no-undef
 module.exports = {
-    // parser: , // Specifies the ESLint parser, use default (which can handle JS)
-    env: {},
+    env: {
+        browser: true,
+        es2021: true,
+        node: true,
+    },
     overrides: [
         {
+            env: {
+                node: true,
+            },
+            files: [".eslintrc.{js,cjs}"],
+            parserOptions: {
+                sourceType: "script",
+            },
+        },
+        {
             // the TS parser and TS specific rules
-            files: ["src/**/*.ts"],
+            files: ["src/**/*.ts", "*.ts"],
             parser: "@typescript-eslint/parser",
             settings: {
                 "import/resolver": {
                     typescript: {}, // this loads <rootdir>/tsconfig.json to eslint
+                    node: {
+                        paths: ["src"],
+                    },
                 },
             },
             parserOptions: {
                 ecmaVersion: "latest", // Allows for the parsing of modern ECMAScript features
                 sourceType: "module", // Allows for the use of imports
-                // eslint-disable-next-line no-undef
                 tsconfigRootDir: __dirname,
-                project: "./tsconfig.json",
+                project: "./tsconfig.dev.json",
                 ecmaFeatures: {
                     jsx: true,
                 },
             },
-            extends: [
-                "plugin:import/typescript",
-                "plugin:@typescript-eslint/recommended",
-                // 'react-app',
-                "prettier", // prettier now has built in support for typescript in eslint-config-prettier 8
-            ],
+            extends: [],
             rules: {
                 "@typescript-eslint/array-type": ["error", { default: "array" }],
                 "@typescript-eslint/await-thenable": "error",
@@ -74,7 +82,7 @@ module.exports = {
                 "@typescript-eslint/no-for-in-array": "error",
                 "@typescript-eslint/no-misused-promises": "error",
                 "@typescript-eslint/no-non-null-assertion": "error",
-                "@typescript-eslint/no-parameter-properties": ["error", { allows: ["readonly"] }],
+                "@typescript-eslint/parameter-properties": "error",
                 "@typescript-eslint/no-require-imports": "error",
                 "@typescript-eslint/no-this-alias": "error",
                 "@typescript-eslint/no-throw-literal": "error",
@@ -90,24 +98,22 @@ module.exports = {
                 "@typescript-eslint/promise-function-async": "off",
                 "@typescript-eslint/require-await": "error",
                 "@typescript-eslint/restrict-plus-operands": "error",
-                "@typescript-eslint/sort-type-union-intersection-members": "error",
+                "@typescript-eslint/return-await": "error",
+                "@typescript-eslint/sort-type-constituents": "error",
+                "@typescript-eslint/strict-boolean-expressions": "off",
                 "@typescript-eslint/unbound-method": "error",
                 "@typescript-eslint/unified-signatures": "error",
                 "@typescript-eslint/explicit-module-boundary-types": "error",
             },
         },
     ],
-    extends: [
-        "eslint:recommended",
-        // "plugin:react/recommended",
-        "plugin:prettier/recommended", // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
-    ],
+    extends: ["eslint:recommended", "standard-with-typescript", "plugin:import/typescript", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
     plugins: ["import"],
     parserOptions: {
-        ecmaVersion: "latest", // Allows for the parsing of modern ECMAScript features
+        ecmaVersion: "latest",
         sourceType: "module",
+        project: "tsconfig.dev.json",
     },
-    ignorePatterns: ["!.prettierrc.js", "!.dependency-cruiser.js"],
     rules: {
         "sort-imports": [
             "error",
@@ -118,9 +124,9 @@ module.exports = {
         "import/no-unresolved": "error",
         "import/newline-after-import": "error",
         "import/no-duplicates": "error",
-        eqeqeq: 2,
+        eqeqeq: ["error", "always"],
         "no-fallthrough": "error",
-        "no-return-await": "error",
+        "no-return-await": "off",
         "require-await": "error",
         "prefer-template": "error",
         curly: "error",
@@ -144,7 +150,7 @@ module.exports = {
             },
         ],
         "class-methods-use-this": "off",
-        indent: ["error", 4],
+        // indent: ["error", 4],
         "max-len": "off",
         "no-dupe-class-members": "off",
         "no-extra-semi": "off",
@@ -167,10 +173,5 @@ module.exports = {
                 alphabetize: { order: "asc", caseInsensitive: true },
             },
         ],
-    },
-    settings: {
-        react: {
-            version: "18.0",
-        },
     },
 };

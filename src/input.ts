@@ -18,6 +18,6 @@ export function get(): Input {
     return {
         args: stringArgv(input.getInput("args")),
         useCross: input.getInputBool("use-cross"),
-        toolchain: "" !== toolchain ? toolchain : undefined,
+        toolchain: toolchain !== "" ? toolchain : undefined,
     };
 }
