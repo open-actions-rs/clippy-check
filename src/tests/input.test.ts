@@ -1,7 +1,37 @@
 import { get } from "../input";
 
 describe("input", () => {
-    test("get", () => {
+    const OLD_ENV = process.env;
+
+    beforeEach(() => {
+        process.env = { ...OLD_ENV };
+    });
+
+    afterAll(() => {
+        process.env = OLD_ENV;
+    });
+
+    test("get 1, parses defaults", () => {
         expect(get()).toStrictEqual({ args: [], toolchain: undefined, useCross: false });
+    });
+
+    test("get 2, can use cross", () => {
+        process.env["INPUT_USE-CROSS"] = "true";
+        expect(get()).toStrictEqual({ args: [], toolchain: undefined, useCross: true });
+    });
+
+    test("get 3, parses toolchain", () => {
+        process.env["INPUT_TOOLCHAIN"] = "nightly";
+        expect(get()).toStrictEqual({ args: [], toolchain: "nightly", useCross: false });
+    });
+
+    test("get 4, parses +toolchain to toolchain", () => {
+        process.env["INPUT_TOOLCHAIN"] = "+nightly";
+        expect(get()).toStrictEqual({ args: [], toolchain: "nightly", useCross: false });
+    });
+
+    test("get 5, parses arguments", () => {
+        process.env["INPUT_ARGS"] = "--all-features --all-targets";
+        expect(get()).toStrictEqual({ args: ["--all-features", "--all-targets"], toolchain: undefined, useCross: false });
     });
 });
