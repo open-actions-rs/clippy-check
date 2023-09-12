@@ -1,6 +1,6 @@
-import { Cargo, Cross } from "@actions-rs-plus/core";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import { Cargo, Cross } from "@actions-rs-plus/core";
 
 import * as input from "./input";
 import { OutputParser } from "./outputParser";
@@ -123,7 +123,7 @@ async function main(): Promise<void> {
             core.setFailed(error.message);
         } else {
             // use the magic of string templates
-            core.setFailed(`${error}`);
+            core.setFailed(`${String(error)}`);
         }
     }
 }

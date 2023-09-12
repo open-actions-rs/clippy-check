@@ -1,7 +1,7 @@
 import { get } from "../input";
 
-describe("foo", () => {
-    test("bar", () => {
+describe("input", () => {
+    test("get", () => {
         expect(get()).toStrictEqual({ args: [], toolchain: undefined, useCross: false });
     });
 });

@@ -4,8 +4,8 @@ import type { AnnotationWithMessageAndLevel, CargoMessage, Stats } from "./schem
 import { AnnotationLevel } from "./schema";
 
 export class OutputParser {
-    private _uniqueAnnotations: Map<string, AnnotationWithMessageAndLevel>;
-    private _stats: Stats;
+    private readonly _uniqueAnnotations: Map<string, AnnotationWithMessageAndLevel>;
+    private readonly _stats: Stats;
 
     public constructor() {
         this._uniqueAnnotations = new Map();
@@ -92,7 +92,7 @@ export class OutputParser {
     /// https://developer.github.com/v3/checks/runs/#annotations-object
     private static makeAnnotation(contents: CargoMessage): AnnotationWithMessageAndLevel {
         const primarySpan = contents.message.spans.find((span) => {
-            return span.is_primary === true;
+            return span.is_primary;
         });
 
         // TODO: Handle it properly
