@@ -2,13 +2,13 @@ import { input } from "@actions-rs-plus/core";
 import stringArgv from "string-argv";
 
 // Parsed action input
-export interface Input {
+export interface ParsedInput {
     toolchain: string | undefined;
     args: string[];
     useCross: boolean;
 }
 
-export function get(): Input {
+export function get(): ParsedInput {
     let toolchain: string = input.getInput("toolchain");
 
     if (toolchain.startsWith("+")) {

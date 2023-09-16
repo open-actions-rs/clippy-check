@@ -12,6 +12,17 @@ export interface AnnotationWithMessageAndLevel {
     properties: AnnotationProperties;
 }
 
+export interface MaybeCargoMessage {
+    reason: string;
+    message?: {
+        code?: string | null;
+        level: string;
+        message: string;
+        rendered: string;
+        spans: DiagnosticSpan[];
+    };
+}
+
 export interface CargoMessage {
     reason: string;
     message: {

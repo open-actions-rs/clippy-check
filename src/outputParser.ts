@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 
-import type { AnnotationWithMessageAndLevel, CargoMessage, Stats } from "./schema";
+import type { AnnotationWithMessageAndLevel, CargoMessage, MaybeCargoMessage, Stats } from "./schema";
 import { AnnotationLevel } from "./schema";
 
 export class OutputParser {
@@ -27,7 +27,7 @@ export class OutputParser {
     }
 
     public tryParseClippyLine(line: string): void {
-        let contents: CargoMessage;
+        let contents: MaybeCargoMessage;
         try {
             contents = JSON.parse(line);
         } catch (error) {
@@ -40,12 +40,15 @@ export class OutputParser {
             return;
         }
 
-        if (contents.message.code === null) {
+        if (!contents.message?.code) {
             core.debug("Message code is missing, ignoring it");
             return;
         }
 
-        const parsedAnnotation = OutputParser.makeAnnotation(contents);
+        const cargoMessage = contents as CargoMessage;
+
+        const parsedAnnotation = OutputParser.makeAnnotation(cargoMessage);
+
         const key = JSON.stringify(parsedAnnotation);
 
         if (this._uniqueAnnotations.has(key)) {
