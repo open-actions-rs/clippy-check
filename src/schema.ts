@@ -24,7 +24,7 @@ export interface MaybeCargoMessage {
 }
 
 export interface CargoMessage {
-    reason: string;
+    reason: "compiler-message";
     message: {
         code: string;
         level: string;
