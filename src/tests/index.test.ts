@@ -6,12 +6,12 @@ jest.mock("clippy");
 jest.mock("input");
 jest.mock("@actions/core");
 
-describe("main", () => {
+describe("index", () => {
     it("works", async () => {
         const runSpy = jest.spyOn(clippy, "run");
 
         await jest.isolateModulesAsync(async () => {
-            await import("main");
+            await import("index");
         });
 
         expect(runSpy).toHaveBeenCalledTimes(1);
@@ -23,7 +23,7 @@ describe("main", () => {
         const setFailedSpy = jest.spyOn(core, "setFailed");
 
         await jest.isolateModulesAsync(async () => {
-            await import("main");
+            await import("index");
         });
 
         expect(setFailedSpy).toHaveBeenCalledWith("It looks like you're running a test");
@@ -35,7 +35,7 @@ describe("main", () => {
         const setFailedSpy = jest.spyOn(core, "setFailed");
 
         await jest.isolateModulesAsync(async () => {
-            await import("main");
+            await import("index");
         });
 
         expect(setFailedSpy).toHaveBeenCalledWith("It looks like you're trying to write a test, would you like some assistance? [YES / NO]");

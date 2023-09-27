@@ -1,28 +1,31 @@
 {
     "private": false,
     "name": "@actions-rs-plus/clippy-check",
-    "version": "2.0.0",
+    "version": "0.0.0",
     "author": "actions-rs-plus",
     "license": "MIT",
     "description": "Run clippy and annotate the diff with errors and warnings",
     "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
     "files": [
         "dist/**/*.js",
         "dist/**/*.js.map",
         "dist/**/*.d.ts"
     ],
     "scripts": {
-        "build": "ncc build src/main.ts --minify && mkdir -p dist/.matchers && cp matchers/rust.json dist/.matchers/rust.json",
-        "watch": "ncc build src/main.ts --watch",
+        "build": "ncc build src/index.ts --source-map && mkdir -p dist/.matchers && cp matchers/rust.json dist/.matchers/rust.json",
+        "watch": "ncc build src/index.ts --watch",
         "lint": "eslint src --ext=ts,tsx",
         "lint:fix": "npm run lint -- --fix",
         "format": "prettier --write \"src/**/*.ts\"",
-        "refresh": "rm -rf ./dist/* && npm run build",
+        "clean": "rm -rf ./dist/* && rm tsconfig.tsbuildinfo && npm run build",
         "test": "jest --watchAll",
         "test:ci": "jest",
         "deps:ci": "depcruise --output-type err src",
         "deps:graph": "depcruise --output-type dot src | dot -T svg > dependency-graph.svg",
-        "deps:report": "depcruise --output-type err-html --output-to dependency-report.html src"
+        "deps:report": "depcruise --output-type err-html --output-to dependency-report.html src",
+        "postversion": "cp package.json package-lock.json ..",
+        "release": "semantic-release"
     },
     "repository": {
         "type": "git",
