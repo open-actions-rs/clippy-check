@@ -68338,6 +68338,135 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 3303:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const exec = __importStar(__nccwpck_require__(1514));
+const core_1 = __nccwpck_require__(4543);
+const outputParser_1 = __nccwpck_require__(3237);
+const reporter_1 = __nccwpck_require__(5021);
+async function buildContext(program) {
+    const context = {
+        cargo: "",
+        clippy: "",
+        rustc: "",
+    };
+    await Promise.all([
+        await exec.exec("rustc", ["-V"], {
+            silent: true,
+            listeners: {
+                stdout: (buffer) => {
+                    return (context.rustc = buffer.toString().trim());
+                },
+            },
+        }),
+        await program.call(["-V"], {
+            silent: true,
+            listeners: {
+                stdout: (buffer) => {
+                    return (context.cargo = buffer.toString().trim());
+                },
+            },
+        }),
+        await program.call(["clippy", "-V"], {
+            silent: true,
+            listeners: {
+                stdout: (buffer) => {
+                    return (context.clippy = buffer.toString().trim());
+                },
+            },
+        }),
+    ]);
+    return context;
+}
+async function runClippy(actionInput, program) {
+    const args = buildArgs(actionInput);
+    const outputParser = new outputParser_1.OutputParser();
+    let exitCode = 0;
+    try {
+        core.startGroup("Executing cargo clippy (JSON output)");
+        exitCode = await program.call(args, {
+            ignoreReturnCode: true,
+            failOnStdErr: false,
+            listeners: {
+                stdline: (line) => {
+                    outputParser.tryParseClippyLine(line);
+                },
+            },
+        });
+    }
+    finally {
+        core.endGroup();
+    }
+    return {
+        stats: outputParser.stats,
+        annotations: outputParser.annotations,
+        exitCode,
+    };
+}
+function getProgram(useCross) {
+    if (useCross) {
+        return core_1.Cross.getOrInstall();
+    }
+    else {
+        return core_1.Cargo.get();
+    }
+}
+async function run(actionInput) {
+    const program = await getProgram(actionInput.useCross);
+    const context = await buildContext(program);
+    const { stats, annotations, exitCode } = await runClippy(actionInput, program);
+    await new reporter_1.Reporter().report(stats, annotations, context);
+    if (exitCode !== 0) {
+        throw new Error(`Clippy had exited with the ${exitCode} exit code`);
+    }
+}
+exports.run = run;
+function buildArgs(actionInput) {
+    const args = [];
+    // Toolchain selection MUST go first in any condition
+    if (actionInput.toolchain) {
+        args.push(`+${actionInput.toolchain}`);
+    }
+    args.push("clippy");
+    // `--message-format=json` should just right after the `cargo clippy`
+    // because usually people are adding the `-- -D warnings` at the end
+    // of arguments and it will mess up the output.
+    args.push("--message-format=json");
+    return args.concat(actionInput.args);
+}
+
+
+/***/ }),
+
 /***/ 6144:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -68369,7 +68498,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const input = __importStar(__nccwpck_require__(6747));
-const clippy_1 = __nccwpck_require__(5208);
+const clippy_1 = __nccwpck_require__(3303);
 async function main() {
     try {
         const actionInput = input.get();
@@ -68418,10 +68547,272 @@ exports.get = get;
 
 /***/ }),
 
-/***/ 5208:
-/***/ ((module) => {
+/***/ 3237:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
-module.exports = eval("require")("clippy");
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OutputParser = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const schema_1 = __nccwpck_require__(2199);
+class OutputParser {
+    _uniqueAnnotations;
+    _stats;
+    constructor() {
+        this._uniqueAnnotations = new Map();
+        this._stats = {
+            ice: 0,
+            error: 0,
+            warning: 0,
+            note: 0,
+            help: 0,
+        };
+    }
+    get stats() {
+        return this._stats;
+    }
+    get annotations() {
+        return [...this._uniqueAnnotations.values()];
+    }
+    tryParseClippyLine(line) {
+        let contents;
+        try {
+            contents = JSON.parse(line);
+        }
+        catch (error) {
+            core.debug("Not a JSON, ignoring it");
+            return;
+        }
+        if (contents.reason !== "compiler-message") {
+            core.debug(`Unexpected reason field, ignoring it: ${contents.reason}`);
+            return;
+        }
+        if (!contents.message?.code) {
+            core.debug("Message code is missing, ignoring it");
+            return;
+        }
+        const cargoMessage = contents;
+        const parsedAnnotation = OutputParser.makeAnnotation(cargoMessage);
+        const key = JSON.stringify(parsedAnnotation);
+        if (this._uniqueAnnotations.has(key)) {
+            return;
+        }
+        switch (contents.message.level) {
+            case "help":
+                this._stats.help += 1;
+                break;
+            case "note":
+                this._stats.note += 1;
+                break;
+            case "warning":
+                this._stats.warning += 1;
+                break;
+            case "error":
+                this._stats.error += 1;
+                break;
+            case "error: internal compiler error":
+                this._stats.ice += 1;
+                break;
+            default:
+                break;
+        }
+        this._uniqueAnnotations.set(key, parsedAnnotation);
+    }
+    static parseLevel(level) {
+        switch (level) {
+            case "help":
+            case "note":
+                return schema_1.AnnotationLevel.Notice;
+            case "warning":
+                return schema_1.AnnotationLevel.Warning;
+            default:
+                return schema_1.AnnotationLevel.Error;
+        }
+    }
+    /// Convert parsed JSON line into the GH annotation object
+    ///
+    /// https://developer.github.com/v3/checks/runs/#annotations-object
+    static makeAnnotation(contents) {
+        const primarySpan = contents.message.spans.find((span) => {
+            return span.is_primary;
+        });
+        // TODO: Handle it properly
+        if (!primarySpan) {
+            throw new Error("Unable to find primary span for message");
+        }
+        const annotation = {
+            level: OutputParser.parseLevel(contents.message.level),
+            message: contents.message.rendered,
+            properties: {
+                file: primarySpan.file_name,
+                startLine: primarySpan.line_start,
+                endLine: primarySpan.line_end,
+                title: contents.message.message,
+            },
+        };
+        // Omit these parameters if `start_line` and `end_line` have different values.
+        if (primarySpan.line_start === primarySpan.line_end) {
+            annotation.properties.startColumn = primarySpan.column_start;
+            annotation.properties.endColumn = primarySpan.column_end;
+        }
+        return annotation;
+    }
+}
+exports.OutputParser = OutputParser;
+
+
+/***/ }),
+
+/***/ 5021:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Reporter = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const schema_1 = __nccwpck_require__(2199);
+class Reporter {
+    async report(stats, annotations, context) {
+        for (const annotation of annotations) {
+            switch (annotation.level) {
+                case schema_1.AnnotationLevel.Error: {
+                    core.error(annotation.message, annotation.properties);
+                    break;
+                }
+                case schema_1.AnnotationLevel.Notice: {
+                    core.notice(annotation.message, annotation.properties);
+                    break;
+                }
+                case schema_1.AnnotationLevel.Warning: {
+                    core.warning(annotation.message, annotation.properties);
+                    break;
+                }
+            }
+        }
+        core.summary.addHeading("Clippy summary", 2);
+        core.summary.addTable([
+            [
+                {
+                    header: true,
+                    data: "Message level",
+                },
+                {
+                    header: true,
+                    data: "Amount",
+                },
+            ],
+            [
+                {
+                    data: "Internal compiler error",
+                },
+                {
+                    data: stats.ice.toString(),
+                },
+            ],
+            [
+                {
+                    data: "Error",
+                },
+                {
+                    data: stats.error.toString(),
+                },
+            ],
+            [
+                {
+                    data: "Warning",
+                },
+                {
+                    data: stats.warning.toString(),
+                },
+            ],
+            [
+                {
+                    data: "Note",
+                },
+                {
+                    data: stats.note.toString(),
+                },
+            ],
+            [
+                {
+                    data: "Help",
+                },
+                {
+                    data: stats.help.toString(),
+                },
+            ],
+        ]);
+        core.summary.addHeading("Versions", 2);
+        core.summary.addList([context.rustc, context.cargo, context.clippy]);
+        await core.summary.write();
+    }
+}
+exports.Reporter = Reporter;
+
+
+/***/ }),
+
+/***/ 2199:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AnnotationLevel = void 0;
+var AnnotationLevel;
+(function (AnnotationLevel) {
+    AnnotationLevel[AnnotationLevel["Error"] = 0] = "Error";
+    AnnotationLevel[AnnotationLevel["Warning"] = 1] = "Warning";
+    AnnotationLevel[AnnotationLevel["Notice"] = 2] = "Notice";
+})(AnnotationLevel || (exports.AnnotationLevel = AnnotationLevel = {}));
 
 
 /***/ }),
