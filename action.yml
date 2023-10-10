@@ -16,7 +16,7 @@ inputs:
     description: Use cross instead of cargo
     required: false
   working-directory:
-    description: Specify where rust directory is. By default runs in root directory
+    description: Specify where rust directory is. By default runs in current directory
     required: false
 
 runs:
