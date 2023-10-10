@@ -19,19 +19,19 @@ to install the most recent `nightly` clippy version.
 on: push
 name: Clippy check
 jobs:
-  clippy_check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: nightly
-            components: clippy
-            override: true
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+    clippy_check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions-rs/toolchain@v1
+              with:
+                  toolchain: nightly
+                  components: clippy
+                  override: true
+            - uses: actions-rs/clippy-check@v1
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  args: --all-features
 ```
 
 ### With stable clippy
@@ -40,23 +40,24 @@ jobs:
 on: push
 name: Clippy check
 jobs:
-  clippy_check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
-        with:
-          args: --all-features
+    clippy_check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - run: rustup component add clippy
+            - uses: actions-rs/clippy-check@v1
+              with:
+                  args: --all-features
 ```
 
 ## Inputs
 
-| Name        | Required | Description                                                                                                                            | Type   | Default |
-| ------------| :------: | ---------------------------------------------------------------------------------------------------------------------------------------| ------ | --------|
-| `toolchain` |          | Rust toolchain to use; override or system default toolchain will be used if omitted                                                    | string |         |
-| `args`      |          | Arguments for the `cargo clippy` command                                                                                               | string |         |
-| `use-cross` |          | Use [`cross`](https://github.com/rust-embedded/cross) instead of `cargo`                                                               | bool   | false   |
+| Name                | Required | Description                                                                         | Type   | Default |
+| ------------------- | :------: | ----------------------------------------------------------------------------------- | ------ | ------- |
+| `toolchain`         |          | Rust toolchain to use; override or system default toolchain will be used if omitted | string |         |
+| `args`              |          | Arguments for the `cargo clippy` command                                            | string |         |
+| `use-cross`         |          | Use [`cross`](https://github.com/rust-embedded/cross) instead of `cargo`            | bool   | false   |
+| `working-directory` |          | Specify where rust directory is                                                     | string | .       |
 
 For extra details about the `toolchain`, `args` and `use-cross` inputs,
 see [`cargo` Action](https://github.com/actions-rs/cargo#inputs) documentation.

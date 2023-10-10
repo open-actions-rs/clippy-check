@@ -6,6 +6,7 @@ export interface ParsedInput {
     toolchain: string | undefined;
     args: string[];
     useCross: boolean;
+    workingDirectory: string | undefined;
 }
 
 export function get(): ParsedInput {
@@ -18,6 +19,7 @@ export function get(): ParsedInput {
     return {
         args: stringArgv(input.getInput("args")),
         useCross: input.getInputBool("use-cross"),
-        toolchain: toolchain !== "" ? toolchain : undefined,
+        workingDirectory: input.getInput("working-directory") || undefined,
+        toolchain: toolchain || undefined,
     };
 }
