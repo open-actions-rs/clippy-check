@@ -15,6 +15,9 @@ inputs:
   use-cross:
     description: Use cross instead of cargo
     required: false
+  working-directory:
+    description: Specify where rust directory is. By default runs in root directory
+    required: false
 
 runs:
   using: "node20"

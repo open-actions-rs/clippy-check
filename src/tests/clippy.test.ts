@@ -17,6 +17,7 @@ describe("clippy", () => {
             toolchain: "stable",
             args: [],
             useCross: false,
+            workingDirectory: undefined,
         };
 
         await expect(run(actionInput)).resolves.toBeUndefined();
@@ -29,6 +30,7 @@ describe("clippy", () => {
             toolchain: "stable",
             args: [],
             useCross: true,
+            workingDirectory: undefined,
         };
 
         await expect(run(actionInput)).resolves.toBeUndefined();
@@ -54,6 +56,7 @@ describe("clippy", () => {
             toolchain: "stable",
             args: [],
             useCross: false,
+            workingDirectory: undefined,
         };
 
         await expect(run(actionInput)).rejects.toThrow(/Clippy had exited with the (\d)+ exit code/);
@@ -78,6 +81,7 @@ describe("clippy", () => {
             toolchain: "stable",
             args: [],
             useCross: false,
+            workingDirectory: undefined,
         };
 
         await expect(run(actionInput)).resolves.toBeUndefined();
@@ -115,6 +119,7 @@ describe("clippy", () => {
             toolchain: "stable",
             args: [],
             useCross: false,
+            workingDirectory: "./my/sources/are/here",
         };
 
         await expect(run(actionInput)).resolves.toBeUndefined();

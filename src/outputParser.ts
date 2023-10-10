@@ -1,13 +1,17 @@
+import { join } from "path";
+
 import * as core from "@actions/core";
 
 import type { AnnotationWithMessageAndLevel, CargoMessage, MaybeCargoMessage, Stats } from "./schema";
 import { AnnotationLevel } from "./schema";
 
 export class OutputParser {
+    private readonly _workingDirectory: string | null;
     private readonly _uniqueAnnotations: Map<string, AnnotationWithMessageAndLevel>;
     private readonly _stats: Stats;
 
-    public constructor() {
+    public constructor(workingDirectory?: string) {
+        this._workingDirectory = workingDirectory ?? null;
         this._uniqueAnnotations = new Map();
         this._stats = {
             ice: 0,
@@ -47,7 +51,7 @@ export class OutputParser {
 
         const cargoMessage = contents as CargoMessage;
 
-        const parsedAnnotation = OutputParser.makeAnnotation(cargoMessage);
+        const parsedAnnotation = this.makeAnnotation(cargoMessage);
 
         const key = JSON.stringify(parsedAnnotation);
 
@@ -93,7 +97,7 @@ export class OutputParser {
     /// Convert parsed JSON line into the GH annotation object
     ///
     /// https://developer.github.com/v3/checks/runs/#annotations-object
-    private static makeAnnotation(contents: CargoMessage): AnnotationWithMessageAndLevel {
+    private makeAnnotation(contents: CargoMessage): AnnotationWithMessageAndLevel {
         const primarySpan = contents.message.spans.find((span) => {
             return span.is_primary;
         });
@@ -103,11 +107,17 @@ export class OutputParser {
             throw new Error("Unable to find primary span for message");
         }
 
+        let path = primarySpan.file_name;
+
+        if (this._workingDirectory) {
+            path = join(this._workingDirectory, path);
+        }
+
         const annotation: AnnotationWithMessageAndLevel = {
             level: OutputParser.parseLevel(contents.message.level),
             message: contents.message.rendered,
             properties: {
-                file: primarySpan.file_name,
+                file: path,
                 startLine: primarySpan.line_start,
                 endLine: primarySpan.line_end,
                 title: contents.message.message,

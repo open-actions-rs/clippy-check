@@ -135,6 +135,35 @@ describe("outputParser", () => {
     });
 
     it("parses annotations into AnnotationWithMessageAndLevel", () => {
+        const outputParser = new OutputParser("./my/sources/are/here");
+
+        outputParser.tryParseClippyLine(
+            JSON.stringify({
+                reason: defaultMessage.reason,
+                message: {
+                    ...defaultMessage.message,
+                    level: "error",
+                },
+            }),
+        );
+
+        expect(outputParser.annotations).toEqual([
+            {
+                level: 0,
+                message: "rendered",
+                properties: {
+                    endColumn: 15,
+                    endLine: 30,
+                    file: "my/sources/are/here/main.rs",
+                    startColumn: 10,
+                    startLine: 30,
+                    title: "message",
+                },
+            },
+        ]);
+    });
+
+    it("parses annotations into AnnotationWithMessageAndLevel", () => {
         const outputParser = new OutputParser();
 
         outputParser.tryParseClippyLine(
@@ -146,6 +175,7 @@ describe("outputParser", () => {
                 },
             }),
         );
+
         outputParser.tryParseClippyLine(
             JSON.stringify({
                 reason: defaultMessage.reason,

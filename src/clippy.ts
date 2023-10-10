@@ -1,3 +1,5 @@
+import { join } from "path";
+
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import { Cargo, Cross } from "@actions-rs-plus/core";
@@ -56,19 +58,25 @@ async function runClippy(actionInput: input.ParsedInput, program: Program): Prom
     const args = buildArgs(actionInput);
     const outputParser = new OutputParser();
 
+    const options: exec.ExecOptions = {
+        ignoreReturnCode: true,
+        failOnStdErr: false,
+        listeners: {
+            stdline: (line: string) => {
+                outputParser.tryParseClippyLine(line);
+            },
+        },
+    };
+
+    if (actionInput.workingDirectory) {
+        options.cwd = join(process.cwd(), actionInput.workingDirectory);
+    }
+
     let exitCode = 0;
 
     try {
         core.startGroup("Executing cargo clippy (JSON output)");
-        exitCode = await program.call(args, {
-            ignoreReturnCode: true,
-            failOnStdErr: false,
-            listeners: {
-                stdline: (line: string) => {
-                    outputParser.tryParseClippyLine(line);
-                },
-            },
-        });
+        exitCode = await program.call(args, options);
     } finally {
         core.endGroup();
     }
