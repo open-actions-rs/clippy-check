@@ -92378,6 +92378,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
+const path_1 = __nccwpck_require__(1017);
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const core_1 = __nccwpck_require__(4543);
@@ -92420,18 +92421,22 @@ async function buildContext(program) {
 async function runClippy(actionInput, program) {
     const args = buildArgs(actionInput);
     const outputParser = new outputParser_1.OutputParser();
+    const options = {
+        ignoreReturnCode: true,
+        failOnStdErr: false,
+        listeners: {
+            stdline: (line) => {
+                outputParser.tryParseClippyLine(line);
+            },
+        },
+    };
+    if (actionInput.workingDirectory) {
+        options.cwd = (0, path_1.join)(process.cwd(), actionInput.workingDirectory);
+    }
     let exitCode = 0;
     try {
         core.startGroup("Executing cargo clippy (JSON output)");
-        exitCode = await program.call(args, {
-            ignoreReturnCode: true,
-            failOnStdErr: false,
-            listeners: {
-                stdline: (line) => {
-                    outputParser.tryParseClippyLine(line);
-                },
-            },
-        });
+        exitCode = await program.call(args, options);
     }
     finally {
         core.endGroup();
@@ -92549,7 +92554,8 @@ function get() {
     return {
         args: (0, string_argv_1.default)(core_1.input.getInput("args")),
         useCross: core_1.input.getInputBool("use-cross"),
-        toolchain: toolchain !== "" ? toolchain : undefined,
+        workingDirectory: core_1.input.getInput("working-directory") || undefined,
+        toolchain: toolchain || undefined,
     };
 }
 exports.get = get;
@@ -92587,12 +92593,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OutputParser = void 0;
+const path_1 = __nccwpck_require__(1017);
 const core = __importStar(__nccwpck_require__(2186));
 const schema_1 = __nccwpck_require__(2199);
 class OutputParser {
+    _workingDirectory;
     _uniqueAnnotations;
     _stats;
-    constructor() {
+    constructor(workingDirectory) {
+        this._workingDirectory = workingDirectory ?? null;
         this._uniqueAnnotations = new Map();
         this._stats = {
             ice: 0,
@@ -92626,7 +92635,7 @@ class OutputParser {
             return;
         }
         const cargoMessage = contents;
-        const parsedAnnotation = OutputParser.makeAnnotation(cargoMessage);
+        const parsedAnnotation = this.makeAnnotation(cargoMessage);
         const key = JSON.stringify(parsedAnnotation);
         if (this._uniqueAnnotations.has(key)) {
             return;
@@ -92666,7 +92675,7 @@ class OutputParser {
     /// Convert parsed JSON line into the GH annotation object
     ///
     /// https://developer.github.com/v3/checks/runs/#annotations-object
-    static makeAnnotation(contents) {
+    makeAnnotation(contents) {
         const primarySpan = contents.message.spans.find((span) => {
             return span.is_primary;
         });
@@ -92674,11 +92683,15 @@ class OutputParser {
         if (!primarySpan) {
             throw new Error("Unable to find primary span for message");
         }
+        let path = primarySpan.file_name;
+        if (this._workingDirectory) {
+            path = (0, path_1.join)(this._workingDirectory, path);
+        }
         const annotation = {
             level: OutputParser.parseLevel(contents.message.level),
             message: contents.message.rendered,
             properties: {
-                file: primarySpan.file_name,
+                file: path,
                 startLine: primarySpan.line_start,
                 endLine: primarySpan.line_end,
                 title: contents.message.message,
