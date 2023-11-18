@@ -91156,31 +91156,31 @@ const exec = __importStar(__nccwpck_require__(1514));
 const core_1 = __nccwpck_require__(4543);
 const outputParser_1 = __nccwpck_require__(3237);
 const reporter_1 = __nccwpck_require__(5021);
-async function buildContext(program) {
+async function buildContext(program, toolchain) {
     const context = {
         cargo: "",
         clippy: "",
         rustc: "",
     };
     await Promise.all([
-        await exec.exec("rustc", ["-V"], {
-            silent: true,
+        await exec.exec("rustc", buildToolchainArguments(toolchain, ["-V"]), {
+            silent: false,
             listeners: {
                 stdout: (buffer) => {
                     return (context.rustc = buffer.toString().trim());
                 },
             },
         }),
-        await program.call(["-V"], {
-            silent: true,
+        await program.call(buildToolchainArguments(toolchain, ["-V"]), {
+            silent: false,
             listeners: {
                 stdout: (buffer) => {
                     return (context.cargo = buffer.toString().trim());
                 },
             },
         }),
-        await program.call(["clippy", "-V"], {
-            silent: true,
+        await program.call(buildToolchainArguments(toolchain, ["clippy", "-V"]), {
+            silent: false,
             listeners: {
                 stdout: (buffer) => {
                     return (context.clippy = buffer.toString().trim());
@@ -91191,7 +91191,7 @@ async function buildContext(program) {
     return context;
 }
 async function runClippy(actionInput, program) {
-    const args = buildArgs(actionInput);
+    const args = buildClippyArguments(actionInput);
     const outputParser = new outputParser_1.OutputParser();
     const options = {
         ignoreReturnCode: true,
@@ -91229,7 +91229,7 @@ function getProgram(useCross) {
 }
 async function run(actionInput) {
     const program = await getProgram(actionInput.useCross);
-    const context = await buildContext(program);
+    const context = await buildContext(program, actionInput.toolchain);
     const { stats, annotations, exitCode } = await runClippy(actionInput, program);
     await new reporter_1.Reporter().report(stats, annotations, context);
     if (exitCode !== 0) {
@@ -91237,18 +91237,25 @@ async function run(actionInput) {
     }
 }
 exports.run = run;
-function buildArgs(actionInput) {
+function buildToolchainArguments(toolchain, after) {
     const args = [];
-    // Toolchain selection MUST go first in any condition
-    if (actionInput.toolchain) {
-        args.push(`+${actionInput.toolchain}`);
+    if (toolchain) {
+        args.push(`+${toolchain}`);
     }
-    args.push("clippy");
-    // `--message-format=json` should just right after the `cargo clippy`
-    // because usually people are adding the `-- -D warnings` at the end
-    // of arguments and it will mess up the output.
-    args.push("--message-format=json");
-    return args.concat(actionInput.args);
+    args.push(...after);
+    return args;
+}
+function buildClippyArguments(actionInput) {
+    // Toolchain selection MUST go first in any condition!
+    return buildToolchainArguments(actionInput.toolchain, [
+        "clippy",
+        // `--message-format=json` should just right after the `cargo clippy`
+        // because usually people are adding the `-- -D warnings` at the end
+        // of arguments and it will mess up the output.
+        "--message-format=json",
+        // and the rest
+        ...actionInput.args,
+    ]);
 }
 
 
