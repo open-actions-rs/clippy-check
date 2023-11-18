@@ -56,7 +56,7 @@ jobs:
 
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_TO_TRIGGER_SUBSEQUENT_WORKFLOWS  }}
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
