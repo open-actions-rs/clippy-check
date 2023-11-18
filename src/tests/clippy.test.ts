@@ -62,6 +62,33 @@ describe("clippy", () => {
         await expect(run(actionInput)).rejects.toThrow(/Clippy had exited with the (\d)+ exit code/);
     });
 
+    it("records versions with toolchain", async () => {
+        const reportSpy = jest.spyOn(Reporter.prototype, "report");
+        jest.spyOn(exec, "exec").mockImplementation((commandline: string, args?: string[], options?: exec.ExecOptions) => {
+            if (commandline.endsWith("cargo")) {
+                if (args?.[0] === "+nightly" && args?.[1] === "-V") {
+                    options?.listeners?.stdout?.(Buffer.from("cargo version"));
+                } else if (args?.[0] === "+nightly" && args?.[1] === "clippy" && args?.[2] === "-V") {
+                    options?.listeners?.stdout?.(Buffer.from("clippy version"));
+                }
+            } else if (commandline === "rustc" && args?.[0] === "+nightly" && args?.[1] === "-V") {
+                options?.listeners?.stdout?.(Buffer.from("rustc version"));
+            }
+            return Promise.resolve(0);
+        });
+
+        const actionInput: ParsedInput = {
+            toolchain: "nightly",
+            args: [],
+            useCross: false,
+            workingDirectory: undefined,
+        };
+
+        await expect(run(actionInput)).resolves.toBeUndefined();
+
+        expect(reportSpy).toBeCalledWith({ error: 0, help: 0, ice: 0, note: 0, warning: 0 }, [], { cargo: "cargo version", clippy: "clippy version", rustc: "rustc version" });
+    });
+
     it("records versions", async () => {
         const reportSpy = jest.spyOn(Reporter.prototype, "report");
         jest.spyOn(exec, "exec").mockImplementation((commandline: string, args?: string[], options?: exec.ExecOptions) => {
@@ -78,7 +105,7 @@ describe("clippy", () => {
         });
 
         const actionInput: ParsedInput = {
-            toolchain: "stable",
+            toolchain: undefined,
             args: [],
             useCross: false,
             workingDirectory: undefined,

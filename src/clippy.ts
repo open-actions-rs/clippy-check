@@ -24,10 +24,8 @@ async function buildContext(program: Program, toolchain: string | undefined): Pr
         rustc: "",
     };
 
-    toolchain = `+${toolchain}` ?? "";
-
     await Promise.all([
-        await exec.exec("rustc", [toolchain, "-V"], {
+        await exec.exec("rustc", buildToolchainArguments(toolchain, ["-V"]), {
             silent: false,
             listeners: {
                 stdout: (buffer: Buffer) => {
@@ -35,7 +33,7 @@ async function buildContext(program: Program, toolchain: string | undefined): Pr
                 },
             },
         }),
-        await program.call([toolchain, "-V"], {
+        await program.call(buildToolchainArguments(toolchain, ["-V"]), {
             silent: false,
             listeners: {
                 stdout: (buffer: Buffer) => {
@@ -43,7 +41,7 @@ async function buildContext(program: Program, toolchain: string | undefined): Pr
                 },
             },
         }),
-        await program.call([toolchain, "clippy", "-V"], {
+        await program.call(buildToolchainArguments(toolchain, ["clippy", "-V"]), {
             silent: false,
             listeners: {
                 stdout: (buffer: Buffer) => {
@@ -57,7 +55,7 @@ async function buildContext(program: Program, toolchain: string | undefined): Pr
 }
 
 async function runClippy(actionInput: input.ParsedInput, program: Program): Promise<ClippyResult> {
-    const args = buildArgs(actionInput);
+    const args = buildClippyArguments(actionInput);
     const outputParser = new OutputParser();
 
     const options: exec.ExecOptions = {
@@ -112,20 +110,29 @@ export async function run(actionInput: input.ParsedInput): Promise<void> {
     }
 }
 
-function buildArgs(actionInput: input.ParsedInput): string[] {
-    const args: string[] = [];
+function buildToolchainArguments(toolchain: string | undefined, after: string[]): string[] {
+    const args = [];
 
-    // Toolchain selection MUST go first in any condition
-    if (actionInput.toolchain) {
-        args.push(`+${actionInput.toolchain}`);
+    if (toolchain) {
+        args.push(`+${toolchain}`);
     }
 
-    args.push("clippy");
+    args.push(...after);
 
-    // `--message-format=json` should just right after the `cargo clippy`
-    // because usually people are adding the `-- -D warnings` at the end
-    // of arguments and it will mess up the output.
-    args.push("--message-format=json");
+    return args;
+}
 
-    return args.concat(actionInput.args);
+function buildClippyArguments(actionInput: input.ParsedInput): string[] {
+    // Toolchain selection MUST go first in any condition!
+    return buildToolchainArguments(actionInput.toolchain, [
+        "clippy",
+
+        // `--message-format=json` should just right after the `cargo clippy`
+        // because usually people are adding the `-- -D warnings` at the end
+        // of arguments and it will mess up the output.
+        "--message-format=json",
+
+        // and the rest
+        ...actionInput.args,
+    ]);
 }
