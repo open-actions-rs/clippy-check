@@ -12208,7 +12208,7 @@ class HttpHeaders {
     set(headerName, headerValue) {
         this._headersMap[getHeaderKey(headerName)] = {
             name: headerName,
-            value: headerValue.toString(),
+            value: headerValue.toString().trim(),
         };
     }
     /**
@@ -12348,7 +12348,7 @@ const Constants = {
     /**
      * The core-http version
      */
-    coreHttpVersion: "3.0.3",
+    coreHttpVersion: "3.0.4",
     /**
      * Specifies HTTP.
      */
@@ -47194,7 +47194,7 @@ __export(dist_src_exports, {
 module.exports = __toCommonJS(dist_src_exports);
 
 // pkg/dist-src/version.js
-var VERSION = "10.1.4";
+var VERSION = "10.1.5";
 
 // pkg/dist-src/generated/endpoints.js
 var Endpoints = {
