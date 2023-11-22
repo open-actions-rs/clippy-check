@@ -53,7 +53,7 @@
         "@typescript-eslint/parser": "6.12.0",
         "@vercel/ncc": "0.38.1",
         "conventional-changelog-conventionalcommits": "7.0.2",
-        "dependency-cruiser": "15.3.0",
+        "dependency-cruiser": "15.4.0",
         "eslint": "8.54.0",
         "eslint-config-prettier": "9.0.0",
         "eslint-config-standard-with-typescript": "40.0.0",
