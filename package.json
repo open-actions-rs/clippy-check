@@ -13,7 +13,7 @@
         "dist/**/*.d.ts"
     ],
     "scripts": {
-        "build": "ncc build src/index.ts --source-map && mkdir -p dist/.matchers && cp matchers/rust.json dist/.matchers/rust.json",
+        "build": "ncc build src/index.ts --source-map --minify && mkdir -p dist/.matchers && cp matchers/rust.json dist/.matchers/rust.json",
         "watch": "ncc build src/index.ts --watch",
         "lint": "eslint src --ext=ts,tsx",
         "lint:fix": "npm run lint -- --fix",
