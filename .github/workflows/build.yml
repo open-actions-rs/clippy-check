@@ -104,11 +104,11 @@ jobs:
       - name: Compare the expected and actual dist/ directories
         id: diff
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_TO_TRIGGER_SUBSEQUENT_WORKFLOWS }}
+          GH_TOKEN: ${{ secrets.TOKEN_TO_TRIGGER_SUBSEQUENT_WORKFLOWS }}
         run: |
           if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
             BRANCH="lock-file-maintenance-$(date +%s)"
-            PR_NUMBER=${{ github.event.pull_request.number }}
+            PR_NUMBER="${{ github.event.pull_request.number }}"
 
             echo "Detected uncommitted changes after build. Checking in changes on branch: ${BRANCH}"
             git checkout -b ${BRANCH}
@@ -121,7 +121,7 @@ jobs:
             git config --global user.email "864376+Kristof-Mattei@users.noreply.github.com"
 
             echo "Committing changes in dist/"
-            git add dist/
+            git add dist/ package-lock.json
             git commit --message "chore: changes caused by updating lock files. See #${PR_NUMBER}"
 
             echo "Pushing branch"
