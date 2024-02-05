@@ -107,27 +107,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
-            echo "Detected uncommitted changes after build. See status below:"
+            BRANCH="lock-file-maintenance-$(date +%s)"
+            echo "Detected uncommitted changes after build. Checking in changes on branch: ${BRANCH}"
+            git checkout -b ${BRANCH}
 
+            echo "Please see the artifacts of this build for the changes"
             git diff > diff.txt
 
-            echo "Creating commit with changes:"
-
-            BRANCH="lock-file-maintenance-$(date +%s)"
-
-            echo "Branch: ${BRANCH}"
-
+            echo "Creating commit with changes"
             git config --global user.name "Kristof Mattei"
             git config --global user.email "864376+Kristof-Mattei@users.noreply.github.com"
 
-            git checkout -b ${BRANCH}
-
+            echo "Committing changes in dist/"
             git add dist/
-
             git commit --message "chore: changes caused by updating lock files. See #${{ github.event.pull_request.number }}"
 
-            echo "Creating PR..."
+            echo "Pushing branch"
+            git push --set-upstream HEAD
 
+            echo "Creating PR"
             gh pr create --base main --head ${BRANCH} --fill
 
             exit 1
