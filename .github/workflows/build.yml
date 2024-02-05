@@ -122,14 +122,15 @@ jobs:
             git config --global user.email "864376+Kristof-Mattei@users.noreply.github.com"
 
             echo "Committing changes in dist/"
-            git add dist/ package-lock.json
-            git commit --message "chore: changes caused by updating lock files. See #${PR_NUMBER}"
+            git rebase origin/main --squash
+            git add dist/
+            git rebase origin/main --message "chore: changes caused by updating lock files. See #${PR_NUMBER}"
 
             echo "Pushing branch"
             git push --set-upstream origin HEAD
 
             echo "Creating PR"
-            gh pr create --base main --head ${BRANCH} --fill
+            gh pr create --base main --head ${BRANCH} --title "chore(deps): rebuilding because of lock file maintenance" --fill
 
             exit 1
           fi
