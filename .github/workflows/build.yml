@@ -104,10 +104,12 @@ jobs:
       - name: Compare the expected and actual dist/ directories
         id: diff
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_TO_TRIGGER_SUBSEQUENT_WORKFLOWS }}
         run: |
           if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
             BRANCH="lock-file-maintenance-$(date +%s)"
+            PR_NUMBER=${{ github.event.pull_request.number }}
+
             echo "Detected uncommitted changes after build. Checking in changes on branch: ${BRANCH}"
             git checkout -b ${BRANCH}
 
@@ -120,7 +122,7 @@ jobs:
 
             echo "Committing changes in dist/"
             git add dist/
-            git commit --message "chore: changes caused by updating lock files. See #${{ github.event.pull_request.number }}"
+            git commit --message "chore: changes caused by updating lock files. See #${PR_NUMBER}"
 
             echo "Pushing branch"
             git push --set-upstream origin HEAD
