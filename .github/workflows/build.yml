@@ -123,7 +123,7 @@ jobs:
 
             echo "Committing changes in dist/"
             git add dist/
-            git commit --message "chore: changes caused by updating lock files. See #${PR_NUMBER}")
+            git commit --message "chore: changes caused by updating lock files. See #${PR_NUMBER}"
 
             echo "Pushing branch"
             git push --set-upstream origin HEAD
