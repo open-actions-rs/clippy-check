@@ -122,9 +122,9 @@ jobs:
             git config --global user.email "864376+Kristof-Mattei@users.noreply.github.com"
 
             echo "Committing changes in dist/"
-            git rebase origin/main --squash
             git add dist/
-            git rebase origin/main --message "chore: changes caused by updating lock files. See #${PR_NUMBER}"
+            git commit --m "chore: empty"
+            git reset $(git commit-tree HEAD^{tree} -m "chore: changes caused by updating lock files. See #${PR_NUMBER}")
 
             echo "Pushing branch"
             git push --set-upstream origin HEAD
