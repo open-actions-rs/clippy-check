@@ -103,10 +103,13 @@ jobs:
 
       - name: Compare the expected and actual dist/ directories
         id: diff
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
             echo "Detected uncommitted changes after build. See status below:"
-            git diff
+
+            git diff > diff.txt
 
             echo "Creating commit with changes:"
 
@@ -119,7 +122,9 @@ jobs:
 
             git checkout -b ${BRANCH}
 
-            git commit --all --message "chore: changes caused by updating lock files. See #${{ github.event.pull_request.number }}"
+            git add dist/
+
+            git commit --message "chore: changes caused by updating lock files. See #${{ github.event.pull_request.number }}"
 
             echo "Creating PR..."
 
@@ -133,7 +138,9 @@ jobs:
         if: ${{ failure() && steps.diff.conclusion == 'failure' }}
         with:
           name: dist
-          path: dist/
+          path: |
+            dist/
+            diff.txt
 
   npm-lint:
     name: Lint the code
