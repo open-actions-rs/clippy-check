@@ -123,7 +123,7 @@ jobs:
 
             echo "Creating PR..."
 
-            gh pr create --base main --head ${BRANCH}
+            gh pr create --base main --head ${BRANCH} --fill
 
             exit 1
           fi
