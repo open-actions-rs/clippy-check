@@ -118,8 +118,8 @@ jobs:
             git diff > diff.txt
 
             echo "Creating commit with changes"
-            # git config --global user.name "Kristof Mattei"
-            # git config --global user.email "864376+Kristof-Mattei@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
             echo "Committing changes in dist/"
             git add dist/
