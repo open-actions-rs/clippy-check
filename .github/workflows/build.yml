@@ -108,8 +108,8 @@ jobs:
           GH_TOKEN: ${{ secrets.TOKEN_TO_TRIGGER_SUBSEQUENT_WORKFLOWS }}
         run: |
           if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
-            BRANCH="lock-file-maintenance-$(date +%s)"
             PR_NUMBER="${{ github.event.pull_request.number }}"
+            BRANCH="lock-file-maintenance-${PR_NUMBER}"
 
             echo "Detected uncommitted changes after build. Checking in changes on branch: ${BRANCH}"
             git checkout -b ${BRANCH}
@@ -130,7 +130,7 @@ jobs:
             git rebase origin/main --autosquash
 
             echo "Pushing branch"
-            git push --set-upstream origin HEAD
+            git push --force --set-upstream origin HEAD
 
             echo "Creating PR"
             gh pr create --base main --head ${BRANCH} --title "chore(deps): rebuilding because of lock file maintenance" --fill
