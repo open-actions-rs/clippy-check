@@ -118,12 +118,16 @@ jobs:
             git diff > diff.txt
 
             echo "Creating commit with changes"
-            git config --global user.name "Kristof Mattei"
-            git config --global user.email "864376+Kristof-Mattei@users.noreply.github.com"
+            # git config --global user.name "Kristof Mattei"
+            # git config --global user.email "864376+Kristof-Mattei@users.noreply.github.com"
 
             echo "Committing changes in dist/"
             git add dist/
             git commit --message "chore: changes caused by updating lock files. See #${PR_NUMBER}"
+
+            # Remove GitHub's merging the tip of lock-file-maintenance branch into main's commit
+            # it's not needed as we require a branch to up-to-date with main
+            git rebase origin/main --autosquash
 
             echo "Pushing branch"
             git push --set-upstream origin HEAD
