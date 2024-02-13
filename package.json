@@ -77,5 +77,8 @@
             "npm run test:lint:fix",
             "depcruise --validate -- "
         ]
+    },
+    "overrides": {
+        "@typescript-eslint/eslint-plugin": "$@typescript-eslint/eslint-plugin"
     }
 }
