@@ -1,4 +1,4 @@
-FROM node:20-alpine3.18@sha256:876514790dabd49fae7d9c4dfbba027954bd91d8e7d36da76334466533bc6b0c
+FROM node:20-alpine3.18@sha256:6caa07ba4df76b775d452b3321213b9e71d4a2cadb1de00524379ff2e8d46a63
 
 WORKDIR app
 
